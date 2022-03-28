@@ -12,10 +12,11 @@ from config.command_map import restart
 
 
 class Server:
-    def __init__(self) -> None:
+    def __init__(self, listen: int = 5) -> None:
         self.server: socket = None
         self.connections: list = []
         self.is_running: bool = False
+        self.listen: int = listen
 
     def create_workers(self):
         threaded_workers = [self.accept, prompt]
@@ -27,7 +28,7 @@ class Server:
         try:
             self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.server.bind(LOCAL_HOST)
-            self.server.listen(5)
+            self.server.listen(self.listen)
             self.is_running = True
 
         except socket.error:
