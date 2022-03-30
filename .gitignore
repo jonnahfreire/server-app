@@ -3,3 +3,4 @@ app/config/__pycache__/*
 app/server/__pycache__/*
 app/services/__pycache__/*
 app/utils/__pycache__/*
+app/server/server_ui/__pycache__/*

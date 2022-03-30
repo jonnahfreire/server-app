@@ -1,5 +1,8 @@
-LOCAL_HOST = ("127.0.0.1", 4444)
+HOST = ["127.0.0.1", 4444]
 
-BASE = 'https://server-dl.herokuapp.com'
+ROUTE = {
+    "base": "https://server-dl.herokuapp.com",
+    "set-info": "{}/set-server-info?url=&ip={}&port={}"
+}
 
-LOCAL_TUNNEL = "http://localhost:4040/api/tunnels"
+NGROK_LOCAL_TUNNEL = "http://localhost:4040/api/tunnels"

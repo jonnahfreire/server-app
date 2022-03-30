@@ -1,6 +1,8 @@
 import socket
 import os
-from config.encodings import ENCODING
+
+from config.encodings import UTF
+from server.server_ui.messages import *
 
 def get_filename_from_command(command: str, cmd: str) -> tuple:
     filename = None
@@ -39,7 +41,7 @@ def recv_file(target: socket, filename: str, file_size: int, output: str = None)
         return 1
 
     except ValueError:
-        print(f"[-] Error: Could not download file {filename}")
+        print(download_error.format(filename))
 
 
 def send_file(filename: str, target: socket) -> int:
@@ -54,31 +56,34 @@ def send_file(filename: str, target: socket) -> int:
 
 def file_download(command: str, target: socket):
     filename, _ = get_filename_from_command(command, "download")
-    command = f"upload {filename}".encode(ENCODING)
+    command = f"upload {filename}".encode(UTF)
     target.send(command)
 
-    data = target.recv(1024).decode(ENCODING)
+    data = target.recv(1024).decode(UTF)
     data = data.replace("download", "").strip().split(" ")
 
     if not data[0] == "" and data[0].isnumeric():
         file_size = int(data[0])
         filename = data[1]
 
-        target.send("ready".encode(ENCODING))
-        print(f"[+] Receiving file: {filename}")
-        print(f"[+] Size in bytes: {file_size/1024} Kb")
+        target.send("ready".encode(UTF))
+        print(receiving_file.format(filename))
+        print(file_size_b.format(file_size/1024))
+
         stat = recv_file(target, filename, file_size)
 
         if stat == 0:
-            print("[+] File received successfully\n")
+            print(file_recv_success)
         else:
-            print("[-] Failed receiving file")
+            print(file_recv_failed)
+
 
 
 def file_upload(command: str, target: socket):
     if target is not None:
         filename, _ = get_filename_from_command(command, "upload")
         file_to_send = filename.replace(" ", "-")
+        
         if '/' in filename:
             file_to_send = filename.split('/')[-1]
 
@@ -86,24 +91,23 @@ def file_upload(command: str, target: socket):
             file_size = int(os.stat(filename)[6])
 
             if file_size > 0:
-                print(f"[+] Sending file: {file_to_send}")
-                print(f"[+] Size in bytes: {file_size/1024} Kb")
+                print(sending_file.format(file_to_send))
+                print(file_size_b.format(file_size/1024))
 
-                command = f"download {file_size} {file_to_send}".encode(
-                    ENCODING)
+                command = f"download {file_size} {file_to_send}".encode(UTF)
                 target.send(command)
 
-                syn = target.recv(1024).decode(ENCODING)
+                syn = target.recv(1024).decode(UTF)
                 if syn == "ready":
-                    print("[+] Target ready")
-                    print("[+] Uploading file..")
+                    print(target_ready)
+                    print(upl_file)
                     stat = send_file(filename, target)
 
                     if stat == 0:
-                        print("[+] File sent succesfully")
+                        print(file_sent_success)
                     else:
-                        print("[-] Failed sending file")
+                        print(file_send_failed)
                 else:
-                    print("[-] Upload failed. Target is not ready")
+                    print(upl_failed)
         else:
-            print("[-] Error: file or path was not found")
+            print(file_path_not_found)
